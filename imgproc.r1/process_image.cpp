@@ -1,4 +1,5 @@
 #include "process_image.h"
+#include <stdio.h>
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
@@ -10,9 +11,9 @@ void process_image(char *image, unsigned long size)
 	// Read image
 	Mat rawImage = Mat( 1, size, CV_8UC1, image );
 	Mat im = imdecode( rawImage, IMREAD_GRAYSCALE );
-	if ( decodedImage.data == NULL ) {
+	if ( im.data == NULL ) {
 		printf("OpenCV: Failed to read in jpg file from memory.");
-		return 0;
+		return;
 	}
 	Mat im_color = imdecode( rawImage, IMREAD_COLOR );
 	Mat im_inv;

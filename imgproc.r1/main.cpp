@@ -79,14 +79,13 @@ capture_to_file(Camera *camera, GPContext *context, char *fn) {
 int
 main(int argc, char **argv) {
 	
-	/* Libgphoto2 Stuff */
+	/* Initialize libgphoto */
 	Camera	*camera;
 	int	retval;
 	GPContext *context = sample_create_context();
 	char	*data;
 	unsigned long size;
 
-	gp_log_add_func(GP_LOG_ERROR, errordumper, NULL);
 	gp_camera_new(&camera);
 
 	/* When I set GP_LOG_DEBUG instead of GP_LOG_ERROR above, I noticed that the
