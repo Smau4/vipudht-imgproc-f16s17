@@ -7,18 +7,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/ioctl.h>
-#include <linux/usbdevice_fs.h>
 #include <gphoto2/gphoto2.h>
-#include <opencv2/opencv.hpp>
 
 #include "stdafx.h"
-
-using namespace cv;
-
-static void errordumper(GPLogLevel level, const char *domain, const char *str,
-                 void *data) {
-  fprintf(stdout, "%s\n", str);
-}
+#include "process_image.h"
 
 static void
 capture_to_memory(Camera *camera, GPContext *context, const char **ptr, unsigned long int *size) {
@@ -91,7 +83,6 @@ main(int argc, char **argv) {
 	Camera	*camera;
 	int	retval;
 	GPContext *context = sample_create_context();
-	FILE 	*f;
 	char	*data;
 	unsigned long size;
 
@@ -113,27 +104,8 @@ main(int argc, char **argv) {
 	//capture_to_file(camera, context, "foo.jpg");
 	capture_to_memory(camera, context, (const char**)&data, &size);
 	
-	/* TEST: SAVE CAPTURED IMAGE TO FILE */
-	f = fopen("foo2.jpg", "wb");
-	if (f) {
-		retval = fwrite (data, size, 1, f);
-		if (retval != size) {
-			printf("  fwrite size %ld, written %d\n", size, retval);
-		}
-		fclose(f);
-	} else {
-		printf("  fopen foo2.jpg failed.\n");
-	}
-	
-	Mat rawData = Mat( 1, size, CV_8UC1, data );
-	Mat decodedImage = imdecode( rawData, 1 );
-	if ( decodedImage.data == NULL ) {
-		printf("OpenCV: Failed to read in jpg file from memory.");
-		return 0;
-	}
-	
-	imwrite("foo3.jpg", decodedImage);
-	
+	// image processing stuff
+	process_image(data, size);
 	
 	// Cleanup
 	gp_camera_exit(camera, context);

@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include <stdio.h>
 
+
+static void errordumper(GPLogLevel level, const char *domain, const char *str,
+                 void *data) {
+  fprintf(stdout, "%s\n", str);
+}
+
 static void
 ctx_error_func (GPContext *context, const char *str, void *data)
 {
