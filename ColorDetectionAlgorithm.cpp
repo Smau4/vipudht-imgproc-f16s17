@@ -1,5 +1,6 @@
 #include "opencv2/opencv.hpp"
 #include "time.h"
+#include <string.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -15,7 +16,7 @@ int main(int argc, char** argv)
 
 	//Determines scale factor of cropping.
 	static double CROP_SCALE = 1.5;
-
+	static double SCALING_FACTOR = 1.0;
 
 	////////////////////////////////////////////////////////////////////PREPARING IMAGES////////////////////////////////////////////////////////////////////
 
@@ -24,8 +25,9 @@ int main(int argc, char** argv)
 	Mat im_color = imread("Images/sample3.jpg");
 	Mat im_inv;
 
+
 	//Resize the image for faster processing time.
-	Size size(1500, 2000);
+	Size size((int)(900.0*SCALING_FACTOR), (int)(1200.0*SCALING_FACTOR);
 	resize(im, im, size);
 	resize(im_color, im_color, size);
 
@@ -46,7 +48,7 @@ int main(int argc, char** argv)
 
 	// Filter by Area.
 	params.filterByArea = true;
-	params.minArea = 600;
+	params.minArea = (int)(216.0*SCALING_FACTOR*SCALING_FACTOR);
 
 	// Filter by Circularity
 	params.filterByCircularity = true;
@@ -90,7 +92,7 @@ int main(int argc, char** argv)
 
 	////////////////////////////////////////////////////////////////////CROPPING TARGETS////////////////////////////////////////////////////////////////////
 
-	const int numTargets = 15; // Replace with a vector later
+	const int numTargets = 50; // Replace with a vector later
 	cv::Mat targets[numTargets];
 	cv::Mat imageROI;
 	int i;
@@ -130,8 +132,7 @@ int main(int argc, char** argv)
 				new_image.at<Vec3b>(y, x)[1] = centers.at<float>(cluster_idx, 1);
 				new_image.at<Vec3b>(y, x)[2] = centers.at<float>(cluster_idx, 2);
 			}
-		imshow("clustered image" + i, new_image);
-
+		imshow("12345678901234567890123456789012345678901234567890"+i, new_image);
 	}
 
 	waitKey(0);
