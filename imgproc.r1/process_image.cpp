@@ -145,7 +145,7 @@ void process_image(char *image, unsigned long image_size)
 			}
 
 		/* Save target image. Filename is unix time */		
-		snprintf(target_fn, sizeof(char) * 20, "%i.bmp", time(0));  
+		snprintf(target_fn, sizeof(char) * 20, "%i.jpg", time(0));  
 		imwrite(target_fn, new_image);
 	}
 
