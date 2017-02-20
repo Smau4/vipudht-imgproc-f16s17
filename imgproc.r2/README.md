@@ -1,5 +1,5 @@
-## imgproc.r1 - Image Capture
-Capture images using capture feature.
+## imgproc.r2 - Trigger Capture
+Capture images using trigger-capture feature.
 
 ## Setup
 * Connect RasberryPi to the internet
