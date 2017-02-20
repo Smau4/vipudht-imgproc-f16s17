@@ -1,5 +1,5 @@
-## imgproc.r1
-Successfully tested integration of libgphoto2 and OpenCV.
+## imgproc.r1 - Image Capture
+Capture images using capture feature.
 
 ## Setup
 * Connect RasberryPi to the internet
