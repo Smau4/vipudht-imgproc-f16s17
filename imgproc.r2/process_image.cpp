@@ -1,4 +1,5 @@
 #include "process_image.h"
+#include "stdafx.h"
 #include <opencv2/opencv.hpp>
 #include <time.h>
 #include <string.h>
@@ -7,10 +8,10 @@
 using namespace cv;
 using namespace std;
 
-void process_image(const char *image, unsigned long image_size)
+void process_image(const char *image, unsigned long image_size, char* filename)
 {
 	// filename stuff
-	char target_fn[20];
+	char target_fn[40];
 
 	//Timers to track time program takes to run.
 	time_t start_time = clock();
@@ -144,8 +145,10 @@ void process_image(const char *image, unsigned long image_size)
 				new_image.at<Vec3b>(y, x)[2] = centers.at<float>(cluster_idx, 2);
 			}
 
-		/* Save target image. Filename is unix time */		
-		snprintf(target_fn, sizeof(char) * 20, "%i.bmp", time(0));  
+		/* Save target image. */	
+		std::string target_path = TARGET_IMG_PATH + std::string("%s-%i.jpg"); 	
+		snprintf(target_fn, sizeof(char) * 40, target_path.c_str(), filename, i);  
+		printf("Target found: %s\n", target_fn);
 		imwrite(target_fn, new_image);
 	}
 

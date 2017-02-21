@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <iostream>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -28,7 +29,9 @@ static int nrofqueue=0;
 static int nrdownloads=0;
 
 static const char *buffer;
-unsigned long buffer_size;
+
+const char *image;
+unsigned long image_size;
 
 static int
 wait_event_and_download (Camera *camera, int waittime, GPContext *context) {
@@ -107,19 +110,24 @@ wait_event_and_download (Camera *camera, int waittime, GPContext *context) {
 
 		/* buffer is returned as pointer, not as a copy */
 		retval = gp_file_get_data_and_size (file, &buffer, &size);
-		buffer_size = size;
+		image_size = size;
+		image = (const char*)malloc(size);
+ 		memcpy((void*)image, (void*)buffer, size);
+		
 
 		if (retval != GP_OK) {
 			fprintf (stderr,"gp_file_get_data_and_size failed: %d\n", retval);
 			gp_file_free (file);
 			return retval;
 		}
-		if (-1 == stat(queue[0].path.name, &stbuf))
-			fd = creat(queue[0].path.name, 0644);
+		
+ 		std::string raw_path = RAW_IMG_PATH + std::string(queue[0].path.name);
+		if (-1 == stat(raw_path.c_str(), &stbuf))
+			fd = creat(raw_path.c_str(), 0644);
 		else
-			fd = open(queue[0].path.name, O_RDWR | O_BINARY, 0644);
+			fd = open(raw_path.c_str(), O_RDWR, 0644);
 		if (fd == -1) {
-			perror(queue[0].path.name);
+			perror(raw_path.c_str());
 			return GP_ERROR;
 		}
 		if (-1 == lseek(fd, 0, SEEK_SET))
@@ -138,8 +146,7 @@ wait_event_and_download (Camera *camera, int waittime, GPContext *context) {
 	return GP_OK;
 }
 
-int
-main(int argc, char **argv) {
+int main(int argc, char **argv) {
 	Camera		*camera;
 	int		retval, nrcapture = 0;
 	struct timeval	tval;
@@ -151,33 +158,44 @@ main(int argc, char **argv) {
 
 	retval = gp_camera_init(camera, context);
 	if (retval != GP_OK) {
-		printf("gp_camera_init: %d\n", retval);
+		printf("[ ERROR ] Failed to initialize camera: %d\n", retval);
 		exit (1);
 	}
+
+
 	while (1) 
 	{	
-		fprintf(stderr,"triggering capture %d\n", ++nrcapture);
+		fprintf(stderr,"\n[DEBUG] -----------Triggering Capture: %d --------------\n", ++nrcapture);
 		retval = gp_camera_trigger_capture (camera, context);
 		if ((retval != GP_OK) && (retval != GP_ERROR) && (retval != GP_ERROR_CAMERA_BUSY)) {
-			fprintf(stderr,"triggering capture had error %d\n", retval);
-			// decide what to do here when it fails during competition
+			fprintf(stderr,"[ ERROR ] Failed to trigger capture: %d\n", retval);
 			break;
 		}
-		fprintf (stderr, "done triggering\n");
 		
 
-		/*fprintf(stderr,"waiting for events\n");*/
+		fprintf(stderr,"\n[DEBUG] -----------Downloading File----------\n");
 		retval = wait_event_and_download(camera, 100, context);
-		if (retval != GP_OK)
-			continue;	// try triggering again
-	
-		/*fprintf(stderr,"end waiting for events\n");*/
-		gettimeofday (&tval, NULL);
-		fprintf(stderr,"loop is at %d.%06d\n", (int)tval.tv_sec,(int)tval.tv_usec);
-		
-		// process image / download targets
-		process_image(buffer, buffer_size);
-	
+		if (retval != GP_OK) {
+			fprintf(stderr, "[ ERROR ] Failed to download image from camera");
+			break;
+		}			
+
+		if ( image ) {
+			// filter for only jpg files
+			std::string ext = "jpg";
+			std::string file(queue[0].path.name);
+			if (file.compare(file.length() - ext.length(), ext.length(), ext) == 0) 
+			{
+				// process image / download targets
+                        	fprintf(stderr, "\n[DEBUG] -----------Processing Image----------\n");
+
+				process_image(image, image_size, queue[0].path.name);
+			}
+		        
+			free((void*)image);	
+			image = NULL;
+		}
+
 		// wait for 4 seconds
 		sleep( 4 );	
 	}

@@ -13,4 +13,12 @@ int canon_enable_capture (Camera *camera, int onoff, GPContext *context);
 extern int camera_auto_focus (Camera *list, GPContext *context, int onoff);
 extern int camera_eosviewfinder (Camera *list, GPContext *context, int onoff);
 extern int camera_manual_focus (Camera *list, int tgt, GPContext *context);
+
+
+
+// CONSTANTS
+#define RAW_IMG_PATH "./raws/"
+#define TARGET_IMG_PATH "./targets/"
+
+
 #endif
